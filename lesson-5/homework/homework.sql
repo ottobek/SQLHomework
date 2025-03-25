@@ -37,6 +37,11 @@ INTERSECT
 SELECT ProductName
 FROM Products_Discounted;
 
+5. Write a query to select distinct customer names and their corresponding Country using SELECT DISTINCT. 
+
+SELECT DISTINCT FirstName, LastName, Country
+FROM Customers;
+
 6. Write a query to select distinct customer names and their corresponding Country using SELECT DISTINCT.
 
 SELECT DISTINCT FirstName, LastName, Country
