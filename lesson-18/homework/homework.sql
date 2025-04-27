@@ -1,275 +1,299 @@
-Level 1: Basic Subqueries
+Lesson-18: Stored procedures, Merge and Practice
 
-1. Find Employees with Minimum Salary
+Notes before doing the tasks:
 
-Task: Retrieve employees who earn the minimum salary in the company.
+Tasks should be solved using SQL Server.
+Case insensitivity applies.
+Alias names do not affect the score.
+Scoring is based on the correct output.
+One correct solution is sufficient.
 
-Tables: employees (columns: id, name, salary)
 
-DDL and DML:
+---
 
+# ✅ TASKS on **Stored Procedures** and **MERGE**
+
+---
+
+# 🔵 Part 1: Stored Procedure Tasks
+
+## Tables to use:
+
+```sql
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Department NVARCHAR(50),
+    Salary DECIMAL(10,2)
+);
+
+CREATE TABLE DepartmentBonus (
+    Department NVARCHAR(50) PRIMARY KEY,
+    BonusPercentage DECIMAL(5,2)
+);
+
+INSERT INTO Employees VALUES
+(1, 'John', 'Doe', 'Sales', 5000),
+(2, 'Jane', 'Smith', 'Sales', 5200),
+(3, 'Mike', 'Brown', 'IT', 6000),
+(4, 'Anna', 'Taylor', 'HR', 4500);
+
+INSERT INTO DepartmentBonus VALUES
+('Sales', 10),
+('IT', 15),
+('HR', 8);
+```
+
+---
+
+## 📄 Task 1:
+
+Create a stored procedure that:
+
+- Creates a temp table `#EmployeeBonus`
+- Inserts EmployeeID, FullName (FirstName + LastName), Department, Salary, and BonusAmount into it
+  - (BonusAmount = Salary * BonusPercentage / 100)
+- Then, selects all data from the temp table.
+
+---
+
+## 📄 Task 2:
+
+Create a stored procedure that:
+
+- Accepts a department name and an increase percentage as parameters
+- Increases salary of all employees in the given department by the given percentage
+- Returns updated employees from that department.
+
+---
+
+# 🔵 Part 2: MERGE Tasks
+
+## Tables to use:
+
+```sql
+CREATE TABLE Products_Current (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(100),
+    Price DECIMAL(10,2)
+);
+
+CREATE TABLE Products_New (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(100),
+    Price DECIMAL(10,2)
+);
+
+INSERT INTO Products_Current VALUES
+(1, 'Laptop', 1200),
+(2, 'Tablet', 600),
+(3, 'Smartphone', 800);
+
+INSERT INTO Products_New VALUES
+(2, 'Tablet Pro', 700),
+(3, 'Smartphone', 850),
+(4, 'Smartwatch', 300);
+```
+
+---
+
+## 📄 Task 3:
+
+Perform a MERGE operation that:
+
+- Updates `ProductName` and `Price` if `ProductID` matches
+- Inserts new products if `ProductID` does not exist
+- Deletes products from `Products_Current` if they are missing in `Products_New`
+- Return the final state of `Products_Current` after the MERGE.
+
+---
+
+## 📄 Task 4:
+
+**Tree Node**
+
+Each node in the tree can be one of three types:
+
+- **"Leaf"**: if the node is a leaf node.
+- **"Root"**: if the node is the root of the tree.
+- **"Inner"**: If the node is neither a leaf node nor a root node.
+
+Write a solution to report the type of each node in the tree.
+
+Input: 
+
+```sql
+CREATE TABLE IF NOT EXISTS Tree (id INT, p_id INT);
+TRUNCATE TABLE Tree;
+INSERT INTO Tree (id, p_id) VALUES (1, NULL);
+INSERT INTO Tree (id, p_id) VALUES (2, 1);
+INSERT INTO Tree (id, p_id) VALUES (3, 1);
+INSERT INTO Tree (id, p_id) VALUES (4, 2);
+INSERT INTO Tree (id, p_id) VALUES (5, 2);
+```
+
+Output:
+
+| id  | type  |
+|-----|-------|
+| 1   | Root  |
+| 2   | Inner |
+| 3   | Leaf  |
+| 4   | Leaf  |
+| 5   | Leaf  |
+
+🔗 [Solve this puzzle on LeetCode](https://leetcode.com/problems/tree-node/description/)
+
+---
+
+## 📄 Task 5:
+
+**Confirmation Rate**
+
+Find the confirmation rate for each user. If a user has no confirmation requests, the rate should be 0.
+
+Input:
+
+```sql
+CREATE TABLE IF NOT EXISTS Signups (user_id INT, time_stamp DATETIME);
+CREATE TABLE IF NOT EXISTS Confirmations (user_id INT, time_stamp DATETIME, action ENUM('confirmed','timeout'));
+
+TRUNCATE TABLE Signups;
+INSERT INTO Signups (user_id, time_stamp) VALUES 
+(3, '2020-03-21 10:16:13'),
+(7, '2020-01-04 13:57:59'),
+(2, '2020-07-29 23:09:44'),
+(6, '2020-12-09 10:39:37');
+
+TRUNCATE TABLE Confirmations;
+INSERT INTO Confirmations (user_id, time_stamp, action) VALUES 
+(3, '2021-01-06 03:30:46', 'timeout'),
+(3, '2021-07-14 14:00:00', 'timeout'),
+(7, '2021-06-12 11:57:29', 'confirmed'),
+(7, '2021-06-13 12:58:28', 'confirmed'),
+(7, '2021-06-14 13:59:27', 'confirmed'),
+(2, '2021-01-22 00:00:00', 'confirmed'),
+(2, '2021-02-28 23:59:59', 'timeout');
+```
+
+Output:
+
+| user_id | confirmation_rate |
+|---------|-------------------|
+| 6       | 0.00               |
+| 3       | 0.00               |
+| 7       | 1.00               |
+| 2       | 0.50               |
+
+🔗 [Solve this puzzle on LeetCode](https://leetcode.com/problems/confirmation-rate/description/)
+
+---
+
+## 📄 Task 6:
+
+**Find employees with the lowest salary**
+
+Input:
+
+```sql
 CREATE TABLE employees (
     id INT PRIMARY KEY,
     name VARCHAR(100),
-    salary DECIMAL(10, 2)
+    salary DECIMAL(10,2)
 );
 
 INSERT INTO employees (id, name, salary) VALUES
 (1, 'Alice', 50000),
 (2, 'Bob', 60000),
 (3, 'Charlie', 50000);
+```
 
-
-2. Find Products Above Average Price
-
-Task: Retrieve products priced above the average price.
-
-Tables: products (columns: id, product_name, price)
-
-DDL and DML:
-
-CREATE TABLE products (
-    id INT PRIMARY KEY,
-    product_name VARCHAR(100),
-    price DECIMAL(10, 2)
-);
-
-INSERT INTO products (id, product_name, price) VALUES
-(1, 'Laptop', 1200),
-(2, 'Tablet', 400),
-(3, 'Smartphone', 800),
-(4, 'Monitor', 300);
-
-
+- Find all employees who have the lowest salary using subqueries.
 
 ---
 
-Level 2: Nested Subqueries with Conditions
+## 📄 Task 7:
 
-3. Find Employees in Sales Department
+**Get Product Sales Summary**
 
-Task: Retrieve employees who work in the "Sales" department.
+Input:
 
-Tables: employees (columns: id, name, department_id), departments (columns: id, department_name)
-
-DDL and DML:
-
-CREATE TABLE departments (
-    id INT PRIMARY KEY,
-    department_name VARCHAR(100)
+```sql
+-- Products Table
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(100),
+    Category NVARCHAR(50),
+    Price DECIMAL(10,2)
 );
 
-CREATE TABLE employees (
-    id INT PRIMARY KEY,
-    name VARCHAR(100),
-    department_id INT,
-    FOREIGN KEY (department_id) REFERENCES departments(id)
+-- Sales Table
+CREATE TABLE Sales (
+    SaleID INT PRIMARY KEY,
+    ProductID INT FOREIGN KEY REFERENCES Products(ProductID),
+    Quantity INT,
+    SaleDate DATE
 );
 
-INSERT INTO departments (id, department_name) VALUES
-(1, 'Sales'),
-(2, 'HR');
+INSERT INTO Products (ProductID, ProductName, Category, Price) VALUES
+(1, 'Laptop Model A', 'Electronics', 1200),
+(2, 'Laptop Model B', 'Electronics', 1500),
+(3, 'Tablet Model X', 'Electronics', 600),
+(4, 'Tablet Model Y', 'Electronics', 700),
+(5, 'Smartphone Alpha', 'Electronics', 800),
+(6, 'Smartphone Beta', 'Electronics', 850),
+(7, 'Smartwatch Series 1', 'Wearables', 300),
+(8, 'Smartwatch Series 2', 'Wearables', 350),
+(9, 'Headphones Basic', 'Accessories', 150),
+(10, 'Headphones Pro', 'Accessories', 250),
+(11, 'Wireless Mouse', 'Accessories', 50),
+(12, 'Wireless Keyboard', 'Accessories', 80),
+(13, 'Desktop PC Standard', 'Computers', 1000),
+(14, 'Desktop PC Gaming', 'Computers', 2000),
+(15, 'Monitor 24 inch', 'Displays', 200),
+(16, 'Monitor 27 inch', 'Displays', 300),
+(17, 'Printer Basic', 'Office', 120),
+(18, 'Printer Pro', 'Office', 400),
+(19, 'Router Basic', 'Networking', 70),
+(20, 'Router Pro', 'Networking', 150);
 
-INSERT INTO employees (id, name, department_id) VALUES
-(1, 'David', 1),
-(2, 'Eve', 2),
-(3, 'Frank', 1);
+INSERT INTO Sales (SaleID, ProductID, Quantity, SaleDate) VALUES
+(1, 1, 2, '2024-01-15'),
+(2, 1, 1, '2024-02-10'),
+(3, 1, 3, '2024-03-08'),
+(4, 2, 1, '2024-01-22'),
+(5, 3, 5, '2024-01-20'),
+(6, 5, 2, '2024-02-18'),
+(7, 5, 1, '2024-03-25'),
+(8, 6, 4, '2024-04-02'),
+(9, 7, 2, '2024-01-30'),
+(10, 7, 1, '2024-02-25'),
+(11, 7, 1, '2024-03-15'),
+(12, 9, 8, '2024-01-18'),
+(13, 9, 5, '2024-02-20'),
+(14, 10, 3, '2024-03-22'),
+(15, 11, 2, '2024-02-14'),
+(16, 13, 1, '2024-03-10'),
+(17, 14, 2, '2024-03-22'),
+(18, 15, 5, '2024-02-01'),
+(19, 15, 3, '2024-03-11'),
+(20, 19, 4, '2024-04-01');
+```
 
+Create a stored procedure called `GetProductSalesSummary` that:
 
-4. Find Customers with No Orders
-
-Task: Retrieve customers who have not placed any orders.
-
-Tables: customers (columns: customer_id, name), orders (columns: order_id, customer_id)
-
-DDL and DML:
-
-CREATE TABLE customers (
-    customer_id INT PRIMARY KEY,
-    name VARCHAR(100)
-);
-
-CREATE TABLE orders (
-    order_id INT PRIMARY KEY,
-    customer_id INT,
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
-);
-
-INSERT INTO customers (customer_id, name) VALUES
-(1, 'Grace'),
-(2, 'Heidi'),
-(3, 'Ivan');
-
-INSERT INTO orders (order_id, customer_id) VALUES
-(1, 1),
-(2, 1);
-
-
+- Accepts a `@ProductID` input
+- Returns:
+  - ProductName
+  - Total Quantity Sold
+  - Total Sales Amount (Quantity × Price)
+  - First Sale Date
+  - Last Sale Date
+- If the product has no sales, return `NULL` for quantity, total amount, first date, and last date, but still return the product name.
 
 ---
 
-Level 3: Aggregation and Grouping in Subqueries
-
-5. Find Products with Max Price in Each Category
-
-Task: Retrieve products with the highest price in each category.
-
-Tables: products (columns: id, product_name, price, category_id)
-
-DDL and DML:
-
-CREATE TABLE products (
-    id INT PRIMARY KEY,
-    product_name VARCHAR(100),
-    price DECIMAL(10, 2),
-    category_id INT
-);
-
-INSERT INTO products (id, product_name, price, category_id) VALUES
-(1, 'Tablet', 400, 1),
-(2, 'Laptop', 1500, 1),
-(3, 'Headphones', 200, 2),
-(4, 'Speakers', 300, 2);
-
-
-6. Find Employees in Department with Highest Average Salary
-
-Task: Retrieve employees working in the department with the highest average salary.
-
-Tables: employees (columns: id, name, salary, department_id), departments (columns: id, department_name)
-
-DDL and DML:
-
-CREATE TABLE departments (
-    id INT PRIMARY KEY,
-    department_name VARCHAR(100)
-);
-
-CREATE TABLE employees (
-    id INT PRIMARY KEY,
-    name VARCHAR(100),
-    salary DECIMAL(10, 2),
-    department_id INT,
-    FOREIGN KEY (department_id) REFERENCES departments(id)
-);
-
-INSERT INTO departments (id, department_name) VALUES
-(1, 'IT'),
-(2, 'Sales');
-
-INSERT INTO employees (id, name, salary, department_id) VALUES
-(1, 'Jack', 80000, 1),
-(2, 'Karen', 70000, 1),
-(3, 'Leo', 60000, 2);
-
-
-
----
-
-Level 4: Correlated Subqueries
-
-7. Find Employees Earning Above Department Average
-
-Task: Retrieve employees earning more than the average salary in their department.
-
-Tables: employees (columns: id, name, salary, department_id)
-
-DDL and DML:
-
-CREATE TABLE employees (
-    id INT PRIMARY KEY,
-    name VARCHAR(100),
-    salary DECIMAL(10, 2),
-    department_id INT
-);
-
-INSERT INTO employees (id, name, salary, department_id) VALUES
-(1, 'Mike', 50000, 1),
-(2, 'Nina', 75000, 1),
-(3, 'Olivia', 40000, 2),
-(4, 'Paul', 55000, 2);
-
-
-8. Find Students with Highest Grade per Course
-
-Task: Retrieve students who received the highest grade in each course.
-
-Tables: students (columns: student_id, name), grades (columns: student_id, course_id, grade)
-
-DDL and DML:
-
-CREATE TABLE students (
-    student_id INT PRIMARY KEY,
-    name VARCHAR(100)
-);
-
-CREATE TABLE grades (
-    student_id INT,
-    course_id INT,
-    grade DECIMAL(4, 2),
-    FOREIGN KEY (student_id) REFERENCES students(student_id)
-);
-
-INSERT INTO students (student_id, name) VALUES
-(1, 'Sarah'),
-(2, 'Tom'),
-(3, 'Uma');
-
-INSERT INTO grades (student_id, course_id, grade) VALUES
-(1, 101, 95),
-(2, 101, 85),
-(3, 102, 90),
-(1, 102, 80);
-
-
-
----
-
-Level 5: Subqueries with Ranking and Complex Conditions
-
-9. Find Third-Highest Price per Category
-
-Task: Retrieve products with the third-highest price in each category.
-
-Tables: products (columns: id, product_name, price, category_id)
-
-DDL and DML:
-
-CREATE TABLE products (
-    id INT PRIMARY KEY,
-    product_name VARCHAR(100),
-    price DECIMAL(10, 2),
-    category_id INT
-);
-
-INSERT INTO products (id, product_name, price, category_id) VALUES
-(1, 'Phone', 800, 1),
-(2, 'Laptop', 1500, 1),
-(3, 'Tablet', 600, 1),
-(4, 'Smartwatch', 300, 1),
-(5, 'Headphones', 200, 2),
-(6, 'Speakers', 300, 2),
-(7, 'Earbuds', 100, 2);
-
-
-10. Find Employees Between Company Average and Department Max Salary
-
-Task: Retrieve employees with salaries above the company average but below the maximum in their department.
-
-Tables: employees (columns: id, name, salary, department_id)
-
-DDL and DML:
-
-CREATE TABLE employees (
-    id INT PRIMARY KEY,
-    name VARCHAR(100),
-    salary DECIMAL(10, 2),
-    department_id INT
-);
-
-INSERT INTO employees (id, name, salary, department_id) VALUES
-(1, 'Alex', 70000, 1),
-(2, 'Blake', 90000, 1),
-(3, 'Casey', 50000, 2),
-(4, 'Dana', 60000, 2),
-(5, 'Evan', 75000, 1);
+✅ Done!  
+Would you also like me to generate a **`README.md`** style version for you too if you want it looking even more professional for GitHub? 🚀  
+(very easy to add if you want!)
